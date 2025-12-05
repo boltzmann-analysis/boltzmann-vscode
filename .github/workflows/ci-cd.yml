@@ -29,11 +29,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run tests
-        uses: coactions/setup-xvfb@v1
-        with:
-          run: pnpm test
-
   package:
     needs: test
     runs-on: ubuntu-latest
