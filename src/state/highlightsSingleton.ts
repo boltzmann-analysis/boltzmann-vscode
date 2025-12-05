@@ -17,8 +17,8 @@ export class ComplexityStatusBar {
     
     static updateComplexity(totalComplexity: number, filename: string) {
         if (this.statusBarItem) {
-            this.statusBarItem.text = `$(graph) ${totalComplexity}`;
-            this.statusBarItem.tooltip = `Total file complexity: ${totalComplexity} (${filename})`;
+            this.statusBarItem.text = `$(graph) ${totalComplexity.toFixed(2)}Ω`;
+            this.statusBarItem.tooltip = `Total file complexity: ${totalComplexity.toFixed(2)}Ω (${filename})`;
             this.statusBarItem.show();
         }
     }
