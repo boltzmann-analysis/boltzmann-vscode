@@ -2,6 +2,7 @@
   "name": "boltzmann-analyser",
   "displayName": "Boltzmann Analyser",
   "description": "Analyses Lexical Complexity of code",
+  "repository": "https://github.com/boltzmann-analysis/boltzmann-vscode",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.100.0"
@@ -19,7 +20,18 @@
         "command": "boltzmann-analyser.HighlightToggle",
         "title": "Boltzmann Analyser: Toggle Highlighting"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Boltzmann Analyser",
+      "properties": {
+        "boltzmann-analyser.binaryPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the Boltzmann analyzer binary. Leave empty to use 'boltzmann_analyser' from PATH.",
+          "scope": "machine-overridable"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
