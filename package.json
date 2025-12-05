@@ -20,6 +20,14 @@
       {
         "command": "boltzmann-analyser.HighlightToggle",
         "title": "Boltzmann Analyser: Toggle Highlighting"
+      },
+      {
+        "command": "boltzmann-analyser.RefreshComplexity",
+        "title": "Boltzmann Analyser: Refresh File Complexity"
+      },
+      {
+        "command": "boltzmann-analyser.TestDecorations",
+        "title": "Boltzmann Analyser: Test Decorations"
       }
     ],
     "configuration": {
@@ -30,6 +38,11 @@
           "default": "",
           "description": "Path to the Boltzmann analyzer binary. Leave empty to use 'boltzmann_analyser' from PATH.",
           "scope": "machine-overridable"
+        },
+        "boltzmann-analyser.showFileComplexity": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show complexity annotations in the file explorer."
         }
       }
     }

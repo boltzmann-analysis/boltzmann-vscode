@@ -23,8 +23,20 @@ export const analyseAndDecorate: (logger: Logger) => Option<Highlight[]> = (logg
 			const activeEditor = window.activeTextEditor;
 			if (activeEditor) {
 				const filename = activeEditor.document.fileName.split('/').pop() || 'Unknown';
+				const filePath = activeEditor.document.fileName;
+				
 				Highlights.updateComplexity(analysisResult.totalComplexity, filename);
 				logger.info(`File complexity: ${analysisResult.totalComplexity} (${filename})`);
+				
+				// Update file decoration
+				const { getFileDecorationProvider } = require('../extension');
+				const decorationProvider = getFileDecorationProvider();
+				if (decorationProvider) {
+					logger.debug('Updating file decoration for:', filePath);
+					decorationProvider.updateFileComplexity(filePath, analysisResult.totalComplexity);
+				} else {
+					logger.debug('No decoration provider found');
+				}
 			}
 			
 			return generateHighlights(analysisResult, logger);

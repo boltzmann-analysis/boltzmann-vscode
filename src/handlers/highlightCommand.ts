@@ -7,8 +7,9 @@ import { Editor } from "../state/editor";
 export class HighlightCommand {
 		static registerToggle (context: ExtensionContext, logger: Logger) {
 		logger.debug("Registering Toggle Highlighting Command");
-		const highlightCommand = 
-			commands.registerTextEditorCommand('boltzmann-analyser.HighlightToggle', (textEditor: TextEditor) => {
+		try {
+			const highlightCommand = 
+				commands.registerTextEditorCommand('boltzmann-analyser.HighlightToggle', (textEditor: TextEditor) => {
 				const isEnabled = Highlights.Toggle();
 				
 				if (isEnabled) {
@@ -20,6 +21,15 @@ export class HighlightCommand {
 					let highlights = computeHighlights(logger);
 					highlights.then((inner) => {
 						Highlights.Singleton().register(inner, Editor.CurrentWindow());
+						
+						// Refresh file decorations after analysis completes
+						setTimeout(() => {
+							const { getFileDecorationProvider } = require('../extension');
+							const decorationProvider = getFileDecorationProvider();
+							if (decorationProvider) {
+								decorationProvider.refreshAllFiles();
+							}
+						}, 200);
 					});
 				} else {
 					logger.info("Highlighting disabled");
@@ -27,8 +37,11 @@ export class HighlightCommand {
 					Highlights.Singleton().deregisterAll(logger);
 					Highlights.updateComplexity(0, ''); // Hide status bar
 				}
-		});
+			});
 
-		context.subscriptions.push(highlightCommand);
+			context.subscriptions.push(highlightCommand);
+		} catch (error) {
+			logger.error(`Failed to register toggle command: ${error}`);
+		}
 	}
 }
