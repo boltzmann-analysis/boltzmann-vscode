@@ -1,7 +1,6 @@
 import {
     FileDecoration,
     FileDecorationProvider,
-    ThemeColor,
     Uri,
     EventEmitter,
     Event,
@@ -56,21 +55,10 @@ export class ComplexityDecorationProvider implements FileDecorationProvider {
         } else {
             badge = complexity.toFixed(0);
         }
-        
-        // Choose color based on complexity level
-        let color: ThemeColor | undefined;
-        if (complexity < 10) {
-            color = new ThemeColor('charts.green');
-        } else if (complexity < 50) {
-            color = new ThemeColor('charts.yellow'); 
-        } else {
-            color = new ThemeColor('charts.red');
-        }
-        
+
         const decoration: FileDecoration = {
             badge,
-            tooltip: `File complexity: ${complexity.toFixed(2)}`,
-            color
+            tooltip: `File complexity: ${complexity.toFixed(2)}`
         };
         
         this.logger.info('Returning decoration for', uri.fsPath, ':', decoration);
