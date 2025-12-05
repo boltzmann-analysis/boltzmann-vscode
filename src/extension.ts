@@ -26,25 +26,26 @@ export function activate(context: ExtensionContext) {
 	const workspaceFolders = workspace.workspaceFolders;
 	if (workspaceFolders) {
 		workspaceFolders.forEach(folder => {
-			const pattern = new RelativePattern(folder, '**/.boltzmann/**');
+			const pattern = new RelativePattern(folder, '.boltzmann/**/*');
+			logger.info('Setting up file watcher with pattern:', pattern);
 			const watcher = workspace.createFileSystemWatcher(pattern);
-			
+
 			// When analysis files are created, changed, or deleted
 			watcher.onDidCreate(uri => {
 				logger.info('🆕 Analysis file created:', uri.fsPath);
-				setTimeout(() => refreshDecorationForAnalysisFile(uri.fsPath, logger), 50);
+				refreshDecorationForAnalysisFile(uri.fsPath, logger);
 			});
-			
+
 			watcher.onDidChange(uri => {
 				logger.info('🔄 Analysis file changed:', uri.fsPath);
-				setTimeout(() => refreshDecorationForAnalysisFile(uri.fsPath, logger), 50);
+				refreshDecorationForAnalysisFile(uri.fsPath, logger);
 			});
-			
+
 			watcher.onDidDelete(uri => {
 				logger.info('🗑️ Analysis file deleted:', uri.fsPath);
-				setTimeout(() => refreshDecorationForAnalysisFile(uri.fsPath, logger), 50);
+				refreshDecorationForAnalysisFile(uri.fsPath, logger);
 			});
-			
+
 			context.subscriptions.push(watcher);
 		});
 	}
@@ -52,42 +53,6 @@ export function activate(context: ExtensionContext) {
 	TextEditorEvents.registerOnDidChange(logger);
 	WorkspaceEvents.registerOnDidSaveTextDocument(logger);
 	HighlightCommand.registerToggle(context, logger);
-	
-	// Register refresh complexity command with error handling
-	try {
-		const refreshCommand = commands.registerCommand('boltzmann-analyser.RefreshComplexity', () => {
-			fileDecorationProvider.clearCache();
-			logger.info('File complexity decorations refreshed');
-		});
-		context.subscriptions.push(refreshCommand);
-		
-		// Add debug command to test decorations
-		const debugCommand = commands.registerCommand('boltzmann-analyser.TestDecorations', () => {
-			const activeEditor = window.activeTextEditor;
-			if (activeEditor) {
-				const uri = activeEditor.document.uri;
-				const filePath = activeEditor.document.fileName;
-				logger.info('🧪 Testing decoration for URI:', uri.toString());
-				logger.info('🧪 Testing decoration for path:', filePath);
-				logger.info('🧪 Workspace folders:', workspace.workspaceFolders?.map((f: WorkspaceFolder) => f.uri.fsPath));
-				
-				// Test with a simple complexity first
-				fileDecorationProvider.updateFileComplexity(filePath, 42);
-				logger.info('🧪 Set test complexity of 42 for current file');
-				
-				// Also try to trigger decoration directly
-				const decoration = fileDecorationProvider.provideFileDecoration(uri);
-				logger.info('🧪 Direct decoration result:', decoration);
-				
-				// Force refresh all decorations
-				fileDecorationProvider.refreshAllFiles();
-				logger.info('🧪 Forced refresh of all file decorations');
-			}
-		});
-		context.subscriptions.push(debugCommand);
-	} catch (error) {
-		logger.error(`Failed to register refresh command: ${error}`);
-	}
 }
 
 export function deactivate() {

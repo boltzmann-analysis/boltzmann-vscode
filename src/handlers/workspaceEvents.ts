@@ -12,16 +12,7 @@ export class WorkspaceEvents {
             Highlights.Singleton().deregisterAll(logger);
             const highlights = analyseAndDecorate(logger);
             highlights.then(
-                (inner) => {
-                    Highlights.Singleton().register(inner, Editor.CurrentWindow());
-                    
-                    // Refresh file decoration for the saved file
-                    const { getFileDecorationProvider } = require('../extension');
-                    const decorationProvider = getFileDecorationProvider();
-                    if (decorationProvider) {
-                        decorationProvider.refreshFile(event.fileName);
-                    }
-                }
+                (inner) => Highlights.Singleton().register(inner, Editor.CurrentWindow())
             );
         });
     }

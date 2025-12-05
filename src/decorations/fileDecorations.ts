@@ -1,12 +1,11 @@
-import { 
-    FileDecoration, 
-    FileDecorationProvider, 
-    ThemeColor, 
-    Uri, 
-    EventEmitter, 
+import {
+    FileDecoration,
+    FileDecorationProvider,
+    ThemeColor,
+    Uri,
+    EventEmitter,
     Event,
-    workspace,
-    window
+    workspace
 } from 'vscode';
 import { Logger } from '../logger';
 import * as path from 'path';
@@ -138,13 +137,6 @@ export class ComplexityDecorationProvider implements FileDecorationProvider {
         }
         
         return undefined;
-    }
-    
-    public updateFileComplexity(filePath: string, complexity: number) {
-        this.logger.info('updateFileComplexity called with:', filePath, complexity);
-        this.complexityCache.set(filePath, complexity);
-        this._onDidChangeFileDecorations.fire(Uri.file(filePath));
-        this.logger.info('File decoration change event fired for:', filePath);
     }
     
     public clearCache() {

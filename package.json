@@ -20,14 +20,6 @@
       {
         "command": "boltzmann-analyser.HighlightToggle",
         "title": "Boltzmann Analyser: Toggle Highlighting"
-      },
-      {
-        "command": "boltzmann-analyser.RefreshComplexity",
-        "title": "Boltzmann Analyser: Refresh File Complexity"
-      },
-      {
-        "command": "boltzmann-analyser.TestDecorations",
-        "title": "Boltzmann Analyser: Test Decorations"
       }
     ],
     "configuration": {

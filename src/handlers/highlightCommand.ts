@@ -21,15 +21,6 @@ export class HighlightCommand {
 					let highlights = computeHighlights(logger);
 					highlights.then((inner) => {
 						Highlights.Singleton().register(inner, Editor.CurrentWindow());
-						
-						// Refresh file decorations after analysis completes
-						setTimeout(() => {
-							const { getFileDecorationProvider } = require('../extension');
-							const decorationProvider = getFileDecorationProvider();
-							if (decorationProvider) {
-								decorationProvider.refreshAllFiles();
-							}
-						}, 200);
 					});
 				} else {
 					logger.info("Highlighting disabled");
