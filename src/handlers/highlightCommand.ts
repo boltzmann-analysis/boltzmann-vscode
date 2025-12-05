@@ -1,32 +1,32 @@
-import { commands, ExtensionContext, TextEditor } from "vscode";
+import { commands, ExtensionContext, TextEditor, window } from "vscode";
 import { Highlights  } from "../state/highlightsSingleton";
 import { analyseAndDecorate as computeHighlights } from "../operations/analyseAndDecorate";
 import { Logger } from "../logger";
 import { Editor } from "../state/editor";
 
 export class HighlightCommand {
-	static registerEnable (context: ExtensionContext, logger: Logger) {
-		logger.debug("Registering Enable Highlighting Command");
+		static registerToggle (context: ExtensionContext, logger: Logger) {
+		logger.debug("Registering Toggle Highlighting Command");
 		const highlightCommand = 
-			commands.registerTextEditorCommand('boltzmann-analyser.HighlightEnable', (textEditor: TextEditor) => {
-				Highlights.Enable();
-                Editor.SetCurrentWindow(textEditor);
-				Highlights.Singleton().deregisterAll(logger);
-				let highlights = computeHighlights(logger);
-				highlights.then((inner) => {
-					Highlights.Singleton().register(inner, Editor.CurrentWindow());
-				});
-		});
-
-		context.subscriptions.push(highlightCommand);
-	}
-
-	static registerDisable (context: ExtensionContext, logger: Logger) {
-		logger.debug("Registering Disable Highlighting Command");
-		const highlightCommand = 
-			commands.registerCommand('boltzmann-analyser.HighlightDisable', (_: TextEditor) => {
-				Highlights.Singleton().deregisterAll(logger);
-				Highlights.Disable();
+			commands.registerTextEditorCommand('boltzmann-analyser.HighlightToggle', (textEditor: TextEditor) => {
+				const isEnabled = Highlights.Toggle();
+				
+				if (isEnabled) {
+					logger.info("Highlighting enabled");
+					window.showInformationMessage("Boltzmann Analyser: Highlighting enabled");
+					
+					Editor.SetCurrentWindow(textEditor);
+					Highlights.Singleton().deregisterAll(logger);
+					let highlights = computeHighlights(logger);
+					highlights.then((inner) => {
+						Highlights.Singleton().register(inner, Editor.CurrentWindow());
+					});
+				} else {
+					logger.info("Highlighting disabled");
+					window.showInformationMessage("Boltzmann Analyser: Highlighting disabled");
+					Highlights.Singleton().deregisterAll(logger);
+					Highlights.updateComplexity(0, ''); // Hide status bar
+				}
 		});
 
 		context.subscriptions.push(highlightCommand);

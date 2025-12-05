@@ -1,12 +1,55 @@
-import { Range, TextEditor, TextEditorDecorationType } from "vscode";
+import { Range, TextEditor, TextEditorDecorationType, ExtensionContext, StatusBarItem, StatusBarAlignment, window } from "vscode";
 import { Option } from "../option";
 import { Logger } from "../logger";
 
 export type Highlight = { decoration: TextEditorDecorationType, range: Range }
 
+const HIGHLIGHTS_ENABLED_KEY = 'boltzmann.highlights.enabled';
+
+export class ComplexityStatusBar {
+    private static statusBarItem: StatusBarItem;
+    
+    static initialize() {
+        this.statusBarItem = window.createStatusBarItem('boltzmann.complexity', StatusBarAlignment.Left, 100);
+        this.statusBarItem.name = 'Boltzmann File Complexity';
+        this.statusBarItem.command = 'boltzmann-analyser.HighlightToggle';
+    }
+    
+    static updateComplexity(totalComplexity: number, filename: string) {
+        if (this.statusBarItem) {
+            this.statusBarItem.text = `$(graph) ${totalComplexity}`;
+            this.statusBarItem.tooltip = `Total file complexity: ${totalComplexity} (${filename})`;
+            this.statusBarItem.show();
+        }
+    }
+    
+    static hide() {
+        if (this.statusBarItem) {
+            this.statusBarItem.hide();
+        }
+    }
+    
+    static dispose() {
+        if (this.statusBarItem) {
+            this.statusBarItem.dispose();
+        }
+    }
+}
+
 export class Highlights {
     private inner: Highlight[] = [];
     private enabled: boolean = false;
+    private static context: ExtensionContext;
+    
+    static Initialize(context: ExtensionContext) {
+        this.context = context;
+        // Load persisted state
+        const savedState = context.workspaceState.get<boolean>(HIGHLIGHTS_ENABLED_KEY, false);
+        this.Singleton().enabled = savedState;
+        
+        // Initialize status bar
+        ComplexityStatusBar.initialize();
+    }
     
     static Singleton(){
         if(highlights === undefined) {
@@ -20,16 +63,31 @@ export class Highlights {
         return !this.Singleton().enabled;
     }
 
-    static Enabled() {
+    static Enabled(): boolean {
         return this.Singleton().enabled;
     }
 
 	static Enable() {
         this.Singleton().enabled = true;
+        this.saveState();
 	}
 
 	static Disable() {
         this.Singleton().enabled = false;
+        this.saveState();
+	}
+	
+	static Toggle(): boolean {
+	    const newState = !this.Singleton().enabled;
+	    this.Singleton().enabled = newState;
+	    this.saveState();
+	    return newState;
+	}
+	
+	private static saveState() {
+	    if (this.context) {
+	        this.context.workspaceState.update(HIGHLIGHTS_ENABLED_KEY, this.Singleton().enabled);
+	    }
 	}
 
     
@@ -42,6 +100,18 @@ export class Highlights {
         if(!this.enabled) { return; }
         this.inner = highlights;
         this.inner.forEach(x => textEditor.then((inner) => inner.setDecorations(x.decoration, [x.range])));
+    }
+    
+    static updateComplexity(totalComplexity: number, filename: string) {
+        if (this.Enabled()) {
+            ComplexityStatusBar.updateComplexity(totalComplexity, filename);
+        } else {
+            ComplexityStatusBar.hide();
+        }
+    }
+    
+    static disposeStatusBar() {
+        ComplexityStatusBar.dispose();
     }
 
 }

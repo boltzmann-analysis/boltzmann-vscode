@@ -1,9 +1,10 @@
-import { parseAnalysis } from "../analysis/analysisParser";
+import { parseAnalysis, Analysis } from "../analysis/analysisParser";
 import { generateHighlights } from "../highlights/highlights";
 import { analyseFile } from "../analysis/file";
 import { Logger } from "../logger";
-import { Highlight } from "../state/highlightsSingleton";
+import { Highlight, Highlights } from "../state/highlightsSingleton";
 import { Option} from "../option";
+import { window } from "vscode";
 
 export const analyseAndDecorate: (logger: Logger) => Option<Highlight[]> = (logger: Logger) => {
 	const analysisPath = analyseFile(logger);
@@ -15,9 +16,18 @@ export const analyseAndDecorate: (logger: Logger) => Option<Highlight[]> = (logg
 		}
 	);
 	return analysis.then(
-		(inner) => {
-			logger.debug("Generating Highlights", inner);
-			return generateHighlights(inner, logger);
+		(analysisResult) => {
+			logger.debug("Generating Highlights", analysisResult);
+			
+			// Update complexity status bar with current file info
+			const activeEditor = window.activeTextEditor;
+			if (activeEditor) {
+				const filename = activeEditor.document.fileName.split('/').pop() || 'Unknown';
+				Highlights.updateComplexity(analysisResult.totalComplexity, filename);
+				logger.info(`File complexity: ${analysisResult.totalComplexity} (${filename})`);
+			}
+			
+			return generateHighlights(analysisResult, logger);
 		}
 	);
 };

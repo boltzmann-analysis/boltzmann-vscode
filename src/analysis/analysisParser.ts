@@ -10,6 +10,7 @@ export type Analysis = {
 	nodes: AnalysisNode[]
 	maximumComplexity: number
 	minimumComplexity: number
+	totalComplexity: number
 }
 
 export function parseAnalysis(path: string): Analysis{
@@ -18,6 +19,16 @@ export function parseAnalysis(path: string): Analysis{
 	let analysisNodes: AnalysisNode[] = [];
 	let maximumComplexity = 0;
 	let minimumComplexity = Number.MAX_SAFE_INTEGER;
+	let totalComplexity = 0;
+
+	if (analysis === undefined || analysis.tree === undefined || analysis.tree.nodes === undefined) {
+		return { nodes: analysisNodes, maximumComplexity, minimumComplexity, totalComplexity };
+	}
+	
+	// Get total complexity from root node
+	if (analysis.tree.nodes.length > 0) {
+		totalComplexity = Math.round(analysis.tree.nodes[0].complexity * 100) / 100;
+	}
 
 	for(const node of analysis.tree.nodes){
 		let start = new Position(node.syntax_span.start_row, node.syntax_span.start_column);
@@ -43,5 +54,5 @@ export function parseAnalysis(path: string): Analysis{
 		}
 	}
 
-	return { nodes: analysisNodes, maximumComplexity, minimumComplexity };
+	return { nodes: analysisNodes, maximumComplexity, minimumComplexity, totalComplexity };
 };

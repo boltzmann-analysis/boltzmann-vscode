@@ -6,6 +6,10 @@ import { Highlight } from "../state/highlightsSingleton";
 export function generateHighlights(analysis: Analysis, logger: Logger) {
 	let decorations: Highlight[] = [];
 
+	if (analysis === undefined || analysis.nodes === undefined) {
+		return [];
+	}
+
 	for (const token of analysis.nodes) {
 		let normalised_complexity = (token.complexity - analysis.minimumComplexity) / (analysis.maximumComplexity - analysis.minimumComplexity);
 		if (normalised_complexity === 0) { continue; }
