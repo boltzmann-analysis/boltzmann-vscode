@@ -3,7 +3,8 @@
   "displayName": "Boltzmann Analyser",
   "description": "Analyses Lexical Complexity of code",
   "repository": "https://github.com/boltzmann-analysis/boltzmann-vscode",
-  "version": "0.0.1",
+  "publisher": "BoltzmannAnalyser",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.100.0"
   },
