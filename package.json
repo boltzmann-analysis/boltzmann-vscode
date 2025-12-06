@@ -30,11 +30,6 @@
           "default": "",
           "description": "Path to the Boltzmann analyzer binary. Leave empty to use 'boltzmann_analyser' from PATH.",
           "scope": "machine-overridable"
-        },
-        "boltzmann-analyser.showFileComplexity": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show complexity annotations in the file explorer."
         }
       }
     }
