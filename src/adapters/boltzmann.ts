@@ -38,5 +38,5 @@ export const executeAnalyser: ExecuteAnalyser = (options: ExecutionOptions, logg
 		return Fail(error as Error);
 	}
 
-	return Ok(`${options.folder}/${BOLTZMANN_STORAGE_PATH}/${options.filePath}`);
+	return Ok(`${options.folder}/${BOLTZMANN_STORAGE_PATH}/${options.filePath}.blta`);
 };
