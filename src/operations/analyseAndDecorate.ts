@@ -4,7 +4,7 @@ import { analyseFile } from "../analysis/file";
 import { Logger } from "../logger";
 import { Highlight, Highlights } from "../state/highlightsSingleton";
 import { Option} from "../option";
-import { window } from "vscode";
+import { window, workspace } from "vscode";
 
 export const analyseAndDecorate: (logger: Logger) => Option<Highlight[]> = (logger: Logger) => {
 	const analysisPath = analyseFile(logger);
@@ -28,7 +28,8 @@ export const analyseAndDecorate: (logger: Logger) => Option<Highlight[]> = (logg
 				logger.info(`File complexity: ${analysisResult.totalComplexity} (${filename})`);
 			}
 
-			return generateHighlights(analysisResult, logger);
+			const folder = workspace.workspaceFolders![0].uri.path;
+			return generateHighlights(analysisResult, logger, folder);
 		}
 	);
 };

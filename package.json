@@ -20,6 +20,14 @@
       {
         "command": "boltzmann-analyser.HighlightToggle",
         "title": "Boltzmann Analyser: Toggle Highlighting"
+      },
+      {
+        "command": "boltzmann-analyser.AnalyseProject",
+        "title": "Boltzmann Analyser: Analyse Project"
+      },
+      {
+        "command": "boltzmann-analyser.ToggleAttenuation",
+        "title": "Boltzmann Analyser: Toggle Attenuation"
       }
     ],
     "configuration": {
@@ -30,6 +38,12 @@
           "default": "",
           "description": "Path to the Boltzmann analyzer binary. Leave empty to use 'boltzmann_analyser' from PATH.",
           "scope": "machine-overridable"
+        },
+        "boltzmann-analyser.attenuation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable attenuation of complexities",
+          "scope": "resource"
         }
       }
     }

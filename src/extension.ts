@@ -1,6 +1,8 @@
 import { ExtensionContext } from 'vscode';
 import { Logger } from './logger';
 import { HighlightCommand } from './handlers/highlightCommand';
+import { ProjectAnalysisCommand } from './handlers/projectAnalysisCommand';
+import { AttenuationToggleCommand } from './handlers/attenuationToggleCommand';
 import { TextEditorEvents } from './handlers/textEditorEvents';
 import { WorkspaceEvents } from './handlers/workspaceEvents';
 import { Highlights } from './state/highlightsSingleton';
@@ -14,6 +16,8 @@ export function activate(context: ExtensionContext) {
 	TextEditorEvents.registerOnDidChange(logger);
 	WorkspaceEvents.registerOnDidSaveTextDocument(logger);
 	HighlightCommand.registerToggle(context, logger);
+	ProjectAnalysisCommand.register(context, logger);
+	AttenuationToggleCommand.register(context, logger);
 }
 
 export function deactivate() {

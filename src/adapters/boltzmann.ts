@@ -4,6 +4,7 @@ import { Logger } from "../logger";
 import { Fail, Ok, Result } from "../result";
 
 type ExecuteAnalyser = (options: ExecutionOptions, logger: Logger) => Result<string, Error>
+type ExecuteProjectAnalyser = (folder: string, logger: Logger) => Result<void, Error>
 
 export type ExecutionOptions = { folder: string, filePath: string}
 
@@ -33,10 +34,30 @@ export const executeAnalyser: ExecuteAnalyser = (options: ExecutionOptions, logg
 		logger.trace("Command Result", buffer);
 	}
 	catch(error) {
+		logger.error(JSON.stringify(error));
 		logger.error('Error executing Boltzmann analyzer');
 		logger.error('Make sure the binary path is correct in settings or that boltzmann_analyser is in your PATH');
 		return Fail(error as Error);
 	}
 
 	return Ok(`${options.folder}/${BOLTZMANN_STORAGE_PATH}/${options.filePath}.blta`);
+};
+
+export const executeProjectAnalyser: ExecuteProjectAnalyser = (folder: string, logger: Logger) => {
+	const binaryPath = getBinaryPath(logger);
+	const command = `"${binaryPath}" folder "." "."`;
+
+	try {
+		logger.info("Executing project analysis command", command);
+		logger.info("Working directory:", folder);
+		execSync(command, { encoding: 'utf8', cwd: folder });
+		logger.info("Project analysis completed successfully");
+	}
+	catch(error) {
+		logger.error('Error executing Boltzmann project analyzer');
+		logger.error('Make sure the binary path is correct in settings or that boltzmann_analyser is in your PATH');
+		return Fail(error as Error);
+	}
+
+	return Ok(undefined);
 };

@@ -33,4 +33,12 @@ export class Result<T, F>{
 
         return Some(this.inner);
 	}
+
+	isOk(): boolean {
+		return this.inner !== null;
+	}
+
+	isFail(): boolean {
+		return this.failure !== null;
+	}
 }
