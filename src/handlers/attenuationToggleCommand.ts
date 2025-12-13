@@ -1,5 +1,8 @@
 import { commands, ExtensionContext, window, workspace } from "vscode";
 import { Logger } from "../logger";
+import { Highlights } from "../state/highlightsSingleton";
+import { analyseAndDecorate } from "../operations/analyseAndDecorate";
+import { Editor } from "../state/editor";
 
 export class AttenuationToggleCommand {
 	static register(context: ExtensionContext, logger: Logger) {
@@ -18,6 +21,17 @@ export class AttenuationToggleCommand {
 				} else {
 					logger.info("Attenuation disabled");
 					window.showInformationMessage("Boltzmann Analyser: Attenuation disabled");
+				}
+
+				// Re-analyze and update highlights for the current file
+				if (Highlights.Enabled() && window.activeTextEditor) {
+					logger.info("Refreshing highlights after attenuation toggle");
+					Editor.SetCurrentWindow(window.activeTextEditor);
+					Highlights.Singleton().deregisterAll(logger);
+					const highlights = analyseAndDecorate(logger);
+					highlights.then((inner) => {
+						Highlights.Singleton().register(inner, Editor.CurrentWindow());
+					});
 				}
 			});
 
