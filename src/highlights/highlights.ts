@@ -56,8 +56,9 @@ export function generateHighlights(analysis: Analysis, logger: Logger, folder: s
 
 		if (normalised_complexity < complexityThreshold) { continue; }
 
-		let red = toColorDecimal(normalised_complexity);
-		let green = toColorDecimal(1 - normalised_complexity);
+		// Orange to red gradient: Orange (255, 165, 0) -> Red (255, 0, 0)
+		let red = 255;
+		let green = Math.round(165 * (1 - normalised_complexity));
 		let alpha = toColorDecimal(highlightAlpha);
 		const backgroundColor = `#${toHex(red)}${toHex(green)}00${toHex(alpha)}`;
 
