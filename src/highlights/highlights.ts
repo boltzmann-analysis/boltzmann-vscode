@@ -11,19 +11,28 @@ export function generateHighlights(analysis: Analysis, logger: Logger, folder: s
 		return [];
 	}
 
+	// Get configuration settings
+	const config = workspace.getConfiguration('boltzmann-analyser');
+	const complexityThreshold = config.get<number>('complexityThreshold', 0.5);
+	const highlightAlpha = config.get<number>('highlightAlpha', 0.3);
+	const minComplexityPerLoc = config.get<number>('minComplexityPerLoc', 0);
+	logger.info(`Using complexity threshold: ${complexityThreshold}, highlight alpha: ${highlightAlpha}, min complexity per LOC: ${minComplexityPerLoc}`);
+
 	// Load attenuation weights if enabled
 	const attenuationCache = new AttenuationCache(folder, logger);
 	attenuationCache.load();
 
-	// Apply attenuation to complexity values
-	const attenuatedNodes = analysis.nodes.map(node => {
-		const weight = attenuationCache.getWeight(node.parentNodeName, node.nodeName);
-		return {
-			...node,
-			complexity: node.complexity * weight
-		};
-	});
-	logger.info(JSON.stringify(attenuatedNodes));
+	// Apply attenuation to complexity values and filter by minimum absolute complexity
+	const attenuatedNodes = analysis.nodes
+		.map(node => {
+			const weight = attenuationCache.getWeight(node.parentNodeName, node.nodeName);
+			return {
+				...node,
+				complexity: node.complexity * weight
+			};
+		})
+		.filter(node => node.complexity >= minComplexityPerLoc);
+	logger.info(`Nodes after absolute complexity filter: ${attenuatedNodes.length}/${analysis.nodes.length}`);
 
 	// Recalculate min/max after attenuation
 	let maxComplexity = 0;
@@ -44,9 +53,12 @@ export function generateHighlights(analysis: Analysis, logger: Logger, folder: s
 		let normalised_complexity = (node.complexity - minComplexity) / (maxComplexity - minComplexity);
 		if (normalised_complexity === 0 || isNaN(normalised_complexity)) { continue; }
 
+		// Filter by normalized complexity threshold
+		if (normalised_complexity < complexityThreshold) { continue; }
+
 		let red = toColorDecimal(normalised_complexity);
 		let green = toColorDecimal(1 - normalised_complexity);
-		let alpha = toColorDecimal(normalised_complexity / 10);
+		let alpha = toColorDecimal(highlightAlpha);
 		const backgroundColor = `#${toHex(red)}${toHex(green)}00${toHex(alpha)}`;
 		const decoration = window.createTextEditorDecorationType({
 			backgroundColor

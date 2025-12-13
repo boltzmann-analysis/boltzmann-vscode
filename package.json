@@ -44,6 +44,29 @@
           "default": false,
           "description": "Enable attenuation of complexities",
           "scope": "resource"
+        },
+        "boltzmann-analyser.complexityThreshold": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Minimum complexity threshold (0-1). Only nodes with normalized complexity above this value will be highlighted. Set to 0 to show all nodes, or closer to 1 to show only the most complex nodes.",
+          "scope": "resource"
+        },
+        "boltzmann-analyser.highlightAlpha": {
+          "type": "number",
+          "default": 0.3,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Transparency level for complexity highlights (0-1). Lower values are more transparent, higher values are more opaque.",
+          "scope": "resource"
+        },
+        "boltzmann-analyser.minComplexityPerLoc": {
+          "type": "number",
+          "default": 80,
+          "minimum": 0,
+          "description": "Minimum absolute complexity per line of code. Nodes with complexity per LOC below this value will not be highlighted, regardless of relative complexity.",
+          "scope": "resource"
         }
       }
     }
