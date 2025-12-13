@@ -2,6 +2,7 @@ import { Range, TextEditor, TextEditorDecorationType, ExtensionContext, StatusBa
 import { Option } from "../option";
 import { Logger } from "../logger";
 import { ComplexityCodeLensProvider } from "./complexityCodeLens";
+import { AnalysisNode } from "../analysis/analysisParser";
 
 export type Highlight = { decoration: TextEditorDecorationType, range: Range, hoverMessage?: string }
 
@@ -115,11 +116,11 @@ export class Highlights {
         }));
     }
     
-    static updateComplexity(totalComplexity: number, filename: string, editor?: TextEditor) {
+    static updateComplexity(totalComplexity: number, filename: string, editor?: TextEditor, nodes?: AnalysisNode[]) {
         if (this.Enabled()) {
             ComplexityStatusBar.updateComplexity(totalComplexity, filename);
             if (editor && this.codeLensProvider) {
-                ComplexityCodeLensProvider.updateComplexity(totalComplexity, editor.document);
+                ComplexityCodeLensProvider.updateComplexity(totalComplexity, editor.document, nodes);
                 this.codeLensProvider.refresh();
             }
         } else {

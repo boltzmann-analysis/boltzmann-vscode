@@ -8,6 +8,7 @@ import {
     EventEmitter,
     Event
 } from "vscode";
+import { AnalysisNode } from "../analysis/analysisParser";
 
 export class ComplexityCodeLensProvider implements CodeLensProvider {
     private _onDidChangeCodeLenses = new EventEmitter<void>();
@@ -15,10 +16,12 @@ export class ComplexityCodeLensProvider implements CodeLensProvider {
 
     private static currentComplexity: number = 0;
     private static currentDocument: TextDocument | undefined;
+    private static analysisNodes: AnalysisNode[] = [];
 
-    static updateComplexity(totalComplexity: number, document: TextDocument) {
+    static updateComplexity(totalComplexity: number, document: TextDocument, nodes?: AnalysisNode[]) {
         this.currentComplexity = totalComplexity;
         this.currentDocument = document;
+        this.analysisNodes = nodes || [];
     }
 
     static getCurrentComplexity(): number {
@@ -27,6 +30,10 @@ export class ComplexityCodeLensProvider implements CodeLensProvider {
 
     static getCurrentDocument(): TextDocument | undefined {
         return this.currentDocument;
+    }
+
+    static getAnalysisNodes(): AnalysisNode[] {
+        return this.analysisNodes;
     }
 
     refresh() {
@@ -47,18 +54,64 @@ export class ComplexityCodeLensProvider implements CodeLensProvider {
         }
 
         const complexity = ComplexityCodeLensProvider.getCurrentComplexity();
-        if (complexity === 0) {
-            return [];
+        const nodes = ComplexityCodeLensProvider.getAnalysisNodes();
+        const codeLenses: CodeLens[] = [];
+
+        // Add file-level complexity at the top
+        if (complexity > 0) {
+            const topOfDocument = new Range(new Position(0, 0), new Position(0, 0));
+            codeLenses.push(new CodeLens(topOfDocument, {
+                title: `File Complexity: ${complexity.toFixed(2)}Ω`,
+                command: '',
+                tooltip: `Total file complexity: ${complexity.toFixed(2)}Ω`
+            }));
         }
 
-        // Create a CodeLens at the very first line
-        const topOfDocument = new Range(new Position(0, 0), new Position(0, 0));
-        const codeLens = new CodeLens(topOfDocument, {
-            title: `File Complexity: ${complexity.toFixed(2)}Ω`,
-            command: '',
-            tooltip: `Total file complexity: ${complexity.toFixed(2)}Ω`
+        // Add function-level complexity for each significant node
+        // Filter for meaningful nodes (functions, methods, classes, etc.)
+        const significantNodes = nodes.filter(node => {
+            const name = node.nodeName.toLowerCase();
+            return name.includes('function') ||
+                   name.includes('method') ||
+                   name.includes('class') ||
+                   name.includes('impl') ||
+                   name.includes('struct') ||
+                   name.includes('enum') ||
+                   name.includes('trait');
         });
 
-        return [codeLens];
+        // Group nodes by line and keep only the highest complexity per line
+        const nodesByLine = new Map<number, { node: AnalysisNode, complexity: number }>();
+
+        for (const node of significantNodes) {
+            // Calculate total complexity for this node (not just density)
+            const lineCount = node.range.end.line - node.range.start.line || 1;
+            const totalNodeComplexity = node.complexity * lineCount;
+
+            // Only consider if complexity is significant
+            if (totalNodeComplexity >= 1) {
+                const line = node.range.start.line;
+                const existing = nodesByLine.get(line);
+
+                // Keep the node with higher complexity for this line
+                if (!existing || totalNodeComplexity > existing.complexity) {
+                    nodesByLine.set(line, { node, complexity: totalNodeComplexity });
+                }
+            }
+        }
+
+        // Create CodeLens for the selected nodes
+        for (const [line, { node, complexity }] of nodesByLine) {
+            const position = new Position(line, 0);
+            const range = new Range(position, position);
+
+            codeLenses.push(new CodeLens(range, {
+                title: `Complexity: ${complexity.toFixed(2)}Ω`,
+                command: '',
+                tooltip: `${node.nodeName} complexity: ${complexity.toFixed(2)}Ω (density: ${node.complexity.toFixed(2)}Ω/LOC)`
+            }));
+        }
+
+        return codeLenses;
     }
 }

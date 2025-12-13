@@ -19,12 +19,12 @@ export const analyseAndDecorate: (logger: Logger) => Option<Highlight[]> = (logg
 		(analysisResult) => {
 			logger.debug("Generating Highlights", analysisResult);
 
-			// Update complexity status bar with current file info
+			// Update complexity status bar and CodeLens with current file info
 			const activeEditor = window.activeTextEditor;
 			if (activeEditor) {
 				const filename = activeEditor.document.fileName.split('/').pop() || 'Unknown';
 
-				Highlights.updateComplexity(analysisResult.totalComplexity, filename);
+				Highlights.updateComplexity(analysisResult.totalComplexity, filename, activeEditor, analysisResult.nodes);
 				logger.info(`File complexity: ${analysisResult.totalComplexity} (${filename})`);
 			}
 
