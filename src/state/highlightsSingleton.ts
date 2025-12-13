@@ -2,7 +2,7 @@ import { Range, TextEditor, TextEditorDecorationType, ExtensionContext, StatusBa
 import { Option } from "../option";
 import { Logger } from "../logger";
 
-export type Highlight = { decoration: TextEditorDecorationType, range: Range }
+export type Highlight = { decoration: TextEditorDecorationType, range: Range, hoverMessage?: string }
 
 const HIGHLIGHTS_ENABLED_KEY = 'boltzmann.highlights.enabled';
 
@@ -99,7 +99,12 @@ export class Highlights {
     public register(highlights: Highlight[], textEditor: Option<TextEditor>) {
         if(!this.enabled) { return; }
         this.inner = highlights;
-        this.inner.forEach(x => textEditor.then((inner) => inner.setDecorations(x.decoration, [x.range])));
+        this.inner.forEach(x => textEditor.then((inner) => {
+            const options = x.hoverMessage
+                ? [{ range: x.range, hoverMessage: x.hoverMessage }]
+                : [x.range];
+            inner.setDecorations(x.decoration, options);
+        }));
     }
     
     static updateComplexity(totalComplexity: number, filename: string) {

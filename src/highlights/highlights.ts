@@ -4,7 +4,7 @@ import { Logger } from "../logger";
 import { Highlight } from "../state/highlightsSingleton";
 import { AttenuationCache } from "../attenuation/attenuation";
 
-type HighlightWithComplexity = Highlight & { complexity: number };
+type HighlightWithComplexity = Highlight & { complexity: number, hoverMessage: string };
 
 export function generateHighlights(analysis: Analysis, logger: Logger, folder: string) {
 	let decorations: HighlightWithComplexity[] = [];
@@ -54,17 +54,19 @@ export function generateHighlights(analysis: Analysis, logger: Logger, folder: s
 		let normalised_complexity = (node.complexity - minComplexity) / (maxComplexity - minComplexity);
 		if (normalised_complexity === 0 || isNaN(normalised_complexity)) { continue; }
 
-		// Filter by normalized complexity threshold
 		if (normalised_complexity < complexityThreshold) { continue; }
 
 		let red = toColorDecimal(normalised_complexity);
 		let green = toColorDecimal(1 - normalised_complexity);
 		let alpha = toColorDecimal(highlightAlpha);
 		const backgroundColor = `#${toHex(red)}${toHex(green)}00${toHex(alpha)}`;
+
+		const hoverMessage = `Complexity: ${node.complexity.toFixed(2)}`;
+
 		const decoration = window.createTextEditorDecorationType({
 			backgroundColor
 		});
-		decorations.push({ decoration, range: node.range, complexity: normalised_complexity });
+		decorations.push({ decoration, range: node.range, complexity: normalised_complexity, hoverMessage });
 	}
 
 	// Remove overlapping highlights, keeping higher complexity ones
@@ -99,7 +101,7 @@ function removeOverlaps(highlights: HighlightWithComplexity[], logger: Logger): 
 
 	logger.debug(`Removed ${sorted.length - kept.length} overlapping highlights`);
 
-	return kept.map(({ decoration, range }) => ({ decoration, range }));
+	return kept.map(({ decoration, range, hoverMessage }) => ({ decoration, range, hoverMessage }));
 }
 
 function rangesOverlap(a: import("vscode").Range, b: import("vscode").Range): boolean {
