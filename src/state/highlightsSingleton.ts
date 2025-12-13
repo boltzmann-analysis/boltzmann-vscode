@@ -1,6 +1,7 @@
 import { Range, TextEditor, TextEditorDecorationType, ExtensionContext, StatusBarItem, StatusBarAlignment, window } from "vscode";
 import { Option } from "../option";
 import { Logger } from "../logger";
+import { ComplexityCodeLensProvider } from "./complexityCodeLens";
 
 export type Highlight = { decoration: TextEditorDecorationType, range: Range, hoverMessage?: string }
 
@@ -8,13 +9,13 @@ const HIGHLIGHTS_ENABLED_KEY = 'boltzmann.highlights.enabled';
 
 export class ComplexityStatusBar {
     private static statusBarItem: StatusBarItem;
-    
+
     static initialize() {
         this.statusBarItem = window.createStatusBarItem('boltzmann.complexity', StatusBarAlignment.Left, 100);
         this.statusBarItem.name = 'Boltzmann File Complexity';
         this.statusBarItem.command = 'boltzmann-analyser.HighlightToggle';
     }
-    
+
     static updateComplexity(totalComplexity: number, filename: string) {
         if (this.statusBarItem) {
             this.statusBarItem.text = `$(graph) ${totalComplexity.toFixed(2)}Ω`;
@@ -22,13 +23,13 @@ export class ComplexityStatusBar {
             this.statusBarItem.show();
         }
     }
-    
+
     static hide() {
         if (this.statusBarItem) {
             this.statusBarItem.hide();
         }
     }
-    
+
     static dispose() {
         if (this.statusBarItem) {
             this.statusBarItem.dispose();
@@ -36,19 +37,26 @@ export class ComplexityStatusBar {
     }
 }
 
+
 export class Highlights {
     private inner: Highlight[] = [];
     private enabled: boolean = false;
     private static context: ExtensionContext;
-    
+    private static codeLensProvider: ComplexityCodeLensProvider;
+
     static Initialize(context: ExtensionContext) {
         this.context = context;
         // Load persisted state
         const savedState = context.workspaceState.get<boolean>(HIGHLIGHTS_ENABLED_KEY, false);
         this.Singleton().enabled = savedState;
-        
-        // Initialize status bar
+
+        // Initialize status bar and CodeLens provider
         ComplexityStatusBar.initialize();
+        this.codeLensProvider = new ComplexityCodeLensProvider();
+    }
+
+    static getCodeLensProvider(): ComplexityCodeLensProvider {
+        return this.codeLensProvider;
     }
     
     static Singleton(){
@@ -107,14 +115,18 @@ export class Highlights {
         }));
     }
     
-    static updateComplexity(totalComplexity: number, filename: string) {
+    static updateComplexity(totalComplexity: number, filename: string, editor?: TextEditor) {
         if (this.Enabled()) {
             ComplexityStatusBar.updateComplexity(totalComplexity, filename);
+            if (editor && this.codeLensProvider) {
+                ComplexityCodeLensProvider.updateComplexity(totalComplexity, editor.document);
+                this.codeLensProvider.refresh();
+            }
         } else {
             ComplexityStatusBar.hide();
         }
     }
-    
+
     static disposeStatusBar() {
         ComplexityStatusBar.dispose();
     }

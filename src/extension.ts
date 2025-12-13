@@ -1,4 +1,4 @@
-import { ExtensionContext } from 'vscode';
+import { ExtensionContext, languages } from 'vscode';
 import { Logger } from './logger';
 import { HighlightCommand } from './handlers/highlightCommand';
 import { ProjectAnalysisCommand } from './handlers/projectAnalysisCommand';
@@ -12,6 +12,13 @@ export function activate(context: ExtensionContext) {
 
 	// Initialize highlighting state from workspace storage
 	Highlights.Initialize(context);
+
+	// Register CodeLens provider for all languages
+	const codeLensProvider = languages.registerCodeLensProvider(
+		{ scheme: 'file' },
+		Highlights.getCodeLensProvider()
+	);
+	context.subscriptions.push(codeLensProvider);
 
 	TextEditorEvents.registerOnDidChange(logger);
 	WorkspaceEvents.registerOnDidSaveTextDocument(logger);
