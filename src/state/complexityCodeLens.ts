@@ -68,17 +68,21 @@ export class ComplexityCodeLensProvider implements CodeLensProvider {
         }
 
         // Add function-level complexity for each significant node
-        // Filter for meaningful nodes (functions, methods, classes, etc.)
-        const significantNodes = nodes.filter(node => {
-            const name = node.nodeName.toLowerCase();
-            return name.includes('function') ||
-                   name.includes('method') ||
-                   name.includes('class') ||
-                   name.includes('impl') ||
-                   name.includes('struct') ||
-                   name.includes('enum') ||
-                   name.includes('trait');
-        });
+        // Only for Rust files
+        let significantNodes: AnalysisNode[] = [];
+
+        if (document.languageId === 'rust' || document.fileName.endsWith('.rs')) {
+            // Filter for Rust-specific nodes (functions, methods, impl blocks, etc.)
+            significantNodes = nodes.filter(node => {
+                const name = node.nodeName.toLowerCase();
+                return name.includes('function') ||
+                       name.includes('method') ||
+                       name.includes('impl') ||
+                       name.includes('struct') ||
+                       name.includes('enum') ||
+                       name.includes('trait');
+            });
+        }
 
         // Group nodes by line and keep only the highest complexity per line
         const nodesByLine = new Map<number, { node: AnalysisNode, complexity: number }>();
