@@ -62,7 +62,7 @@ export function generateHighlights(analysis: Analysis, logger: Logger, folder: s
 		let alpha = toColorDecimal(highlightAlpha);
 		const backgroundColor = `#${toHex(red)}${toHex(green)}00${toHex(alpha)}`;
 
-		const hoverMessage = `Complexity: ${node.complexity.toFixed(2)}`;
+		const hoverMessage = `Complexity density: ${node.complexity.toFixed(2)}`;
 
 		const decoration = window.createTextEditorDecorationType({
 			backgroundColor
