@@ -34,7 +34,6 @@ export const executeAnalyser: ExecuteAnalyser = (options: ExecutionOptions, logg
 		logger.trace("Command Result", buffer);
 	}
 	catch(error) {
-		logger.error(JSON.stringify(error));
 		logger.error('Error executing Boltzmann analyzer');
 		logger.error('Make sure the binary path is correct in settings or that boltzmann_analyser is in your PATH');
 		return Fail(error as Error);

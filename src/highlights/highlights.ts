@@ -4,14 +4,15 @@ import { Logger } from "../logger";
 import { Highlight } from "../state/highlightsSingleton";
 import { AttenuationCache } from "../attenuation/attenuation";
 
+type HighlightWithComplexity = Highlight & { complexity: number };
+
 export function generateHighlights(analysis: Analysis, logger: Logger, folder: string) {
-	let decorations: Highlight[] = [];
+	let decorations: HighlightWithComplexity[] = [];
 
 	if (analysis === undefined || analysis.nodes === undefined) {
 		return [];
 	}
 
-	// Get configuration settings
 	const config = workspace.getConfiguration('boltzmann-analyser');
 	const complexityThreshold = config.get<number>('complexityThreshold', 0.5);
 	const highlightAlpha = config.get<number>('highlightAlpha', 0.3);
@@ -63,10 +64,46 @@ export function generateHighlights(analysis: Analysis, logger: Logger, folder: s
 		const decoration = window.createTextEditorDecorationType({
 			backgroundColor
 		});
-		decorations.push({ decoration, range: node.range });
+		decorations.push({ decoration, range: node.range, complexity: normalised_complexity });
 	}
 
-	return decorations;
+	// Remove overlapping highlights, keeping higher complexity ones
+	const nonOverlappingDecorations = removeOverlaps(decorations, logger);
+	logger.info(`Highlights after overlap removal: ${nonOverlappingDecorations.length}/${decorations.length}`);
+
+	return nonOverlappingDecorations;
+}
+
+function removeOverlaps(highlights: HighlightWithComplexity[], logger: Logger): Highlight[] {
+	if (highlights.length === 0) {
+		return [];
+	}
+
+	const sorted = [...highlights].sort((a, b) => b.complexity - a.complexity);
+	const kept: HighlightWithComplexity[] = [];
+
+	for (const current of sorted) {
+		let hasOverlap = false;
+
+		for (const keptHighlight of kept) {
+			if (rangesOverlap(current.range, keptHighlight.range)) {
+				hasOverlap = true;
+				break;
+			}
+		}
+
+		if (!hasOverlap) {
+			kept.push(current);
+		}
+	}
+
+	logger.debug(`Removed ${sorted.length - kept.length} overlapping highlights`);
+
+	return kept.map(({ decoration, range }) => ({ decoration, range }));
+}
+
+function rangesOverlap(a: import("vscode").Range, b: import("vscode").Range): boolean {
+	return !a.end.isBefore(b.start) && !b.end.isBefore(a.start);
 }
 
 function toColorDecimal(normalisedValue: number){
