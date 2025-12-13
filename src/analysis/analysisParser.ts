@@ -48,7 +48,7 @@ export function parseAnalysis(path: string): Analysis{
 
 		// Calculate LOC and complexity density
 		const loc = node.syntax_span.end_row === node.syntax_span.start_row
-			? 0.5
+			? 1
 			: node.syntax_span.end_row - node.syntax_span.start_row;
 		const complexityDensity = node.complexity / loc;
 
