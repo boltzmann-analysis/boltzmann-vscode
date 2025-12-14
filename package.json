@@ -4,7 +4,7 @@
   "description": "Analyses Lexical Complexity of code",
   "repository": "https://github.com/boltzmann-analysis/boltzmann-vscode",
   "publisher": "BoltzmannAnalyser",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "engines": {
     "vscode": "^1.100.0"
   },
