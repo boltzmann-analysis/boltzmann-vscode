@@ -21,11 +21,11 @@ export class ProjectAnalysisCommand {
 
 					window.showInformationMessage("Boltzmann Analyser: Starting project analysis...");
 
-					const result = executeProjectAnalyser(folder, logger);
-
-					if (result.isOk()) {
+					try {
+						executeProjectAnalyser(folder, logger);
 						window.showInformationMessage("Boltzmann Analyser: Project analysis completed successfully");
-					} else {
+					} catch (error) {
+						logger.error(error);
 						window.showErrorMessage("Boltzmann Analyser: Project analysis failed. Check logs for details.");
 					}
 				});

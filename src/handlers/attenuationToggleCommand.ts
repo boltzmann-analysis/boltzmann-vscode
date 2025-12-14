@@ -28,9 +28,10 @@ export class AttenuationToggleCommand {
 					logger.info("Refreshing highlights after attenuation toggle");
 					Editor.SetCurrentWindow(window.activeTextEditor);
 					Highlights.Singleton().deregisterAll(logger);
-					const highlights = analyseAndDecorate(logger);
-					highlights.then((inner) => {
-						Highlights.Singleton().register(inner, Editor.CurrentWindow());
+					analyseAndDecorate(logger).then((highlights) => {
+						if (highlights) {
+							Highlights.Singleton().register(highlights, Editor.CurrentWindow());
+						}
 					});
 				}
 			});

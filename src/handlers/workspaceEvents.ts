@@ -10,10 +10,11 @@ export class WorkspaceEvents {
             if (Highlights.Disabled()) { return; }
             logger.info("Text document save detected. Reanalysing", event.fileName);
             Highlights.Singleton().deregisterAll(logger);
-            const highlights = analyseAndDecorate(logger);
-            highlights.then(
-                (inner) => Highlights.Singleton().register(inner, Editor.CurrentWindow())
-            );
+            analyseAndDecorate(logger).then((highlights) => {
+                if (highlights) {
+                    Highlights.Singleton().register(highlights, Editor.CurrentWindow());
+                }
+            });
         });
     }
 }

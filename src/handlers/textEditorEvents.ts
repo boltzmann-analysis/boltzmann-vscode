@@ -14,10 +14,11 @@ export class TextEditorEvents {
             Editor.SetCurrentWindow(editor);
             
             Highlights.Singleton().deregisterAll(logger);
-            const highlights = analyseAndDecorate(logger);
-            highlights.then(
-                (inner) => Highlights.Singleton().register(inner, Editor.CurrentWindow())
-            );
+            analyseAndDecorate(logger).then((highlights) => {
+                if (highlights) {
+                    Highlights.Singleton().register(highlights, Editor.CurrentWindow());
+                }
+            });
         });
         
         // Also handle when visible editors change (for splits, etc.)
@@ -31,10 +32,11 @@ export class TextEditorEvents {
                 Editor.SetCurrentWindow(activeEditor);
                 
                 Highlights.Singleton().deregisterAll(logger);
-                const highlights = analyseAndDecorate(logger);
-                highlights.then(
-                    (inner) => Highlights.Singleton().register(inner, Editor.CurrentWindow())
-                );
+                analyseAndDecorate(logger).then((highlights) => {
+                    if (highlights) {
+                        Highlights.Singleton().register(highlights, Editor.CurrentWindow());
+                    }
+                });
             }
         });
     }

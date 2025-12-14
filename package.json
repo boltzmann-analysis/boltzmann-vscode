@@ -67,6 +67,19 @@
           "minimum": 0,
           "description": "Minimum absolute complexity per line of code. Nodes with complexity per LOC below this value will not be highlighted, regardless of relative complexity.",
           "scope": "resource"
+        },
+        "boltzmann-analyser.analysisMode": {
+          "type": "string",
+          "enum": ["local", "remote"],
+          "default": "local",
+          "description": "Analysis mode: 'local' uses the CLI tool, 'remote' uses an API server.",
+          "scope": "machine-overridable"
+        },
+        "boltzmann-analyser.remoteServerUrl": {
+          "type": "string",
+          "default": "http://localhost:3030",
+          "description": "URL of the remote analysis server (used when analysisMode is 'remote').",
+          "scope": "machine-overridable"
         }
       }
     }

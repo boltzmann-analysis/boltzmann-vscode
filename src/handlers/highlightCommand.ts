@@ -18,9 +18,10 @@ export class HighlightCommand {
 					
 					Editor.SetCurrentWindow(textEditor);
 					Highlights.Singleton().deregisterAll(logger);
-					let highlights = computeHighlights(logger);
-					highlights.then((inner) => {
-						Highlights.Singleton().register(inner, Editor.CurrentWindow());
+					computeHighlights(logger).then((highlights) => {
+						if (highlights) {
+							Highlights.Singleton().register(highlights, Editor.CurrentWindow());
+						}
 					});
 				} else {
 					logger.info("Highlighting disabled");

@@ -32,9 +32,10 @@ export function activate(context: ExtensionContext) {
 	if (Highlights.Enabled() && window.activeTextEditor) {
 		logger.info("Analyzing currently open file on startup");
 		Editor.SetCurrentWindow(window.activeTextEditor);
-		const highlights = analyseAndDecorate(logger);
-		highlights.then((inner) => {
-			Highlights.Singleton().register(inner, Editor.CurrentWindow());
+		analyseAndDecorate(logger).then((highlights) => {
+			if (highlights) {
+				Highlights.Singleton().register(highlights, Editor.CurrentWindow());
+			}
 		});
 	}
 }
