@@ -70,14 +70,17 @@
         },
         "boltzmann-analyser.analysisMode": {
           "type": "string",
-          "enum": ["local", "remote"],
+          "enum": [
+            "local",
+            "remote"
+          ],
           "default": "local",
           "description": "Analysis mode: 'local' uses the CLI tool, 'remote' uses an API server.",
           "scope": "machine-overridable"
         },
         "boltzmann-analyser.remoteServerUrl": {
           "type": "string",
-          "default": "http://localhost:3030",
+          "default": "http://api.boltzmann.co.uk",
           "description": "URL of the remote analysis server (used when analysisMode is 'remote').",
           "scope": "machine-overridable"
         }
