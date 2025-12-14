@@ -80,7 +80,7 @@
         },
         "boltzmann-analyser.remoteServerUrl": {
           "type": "string",
-          "default": "http://api.boltzmann.co.uk",
+          "default": "https://api.boltzmann.co.uk",
           "description": "URL of the remote analysis server (used when analysisMode is 'remote').",
           "scope": "machine-overridable"
         }
