@@ -63,7 +63,7 @@
         },
         "boltzmann-analyser.minComplexityPerLoc": {
           "type": "number",
-          "default": 80,
+          "default": 30,
           "minimum": 0,
           "description": "Minimum absolute complexity per line of code. Nodes with complexity per LOC below this value will not be highlighted, regardless of relative complexity.",
           "scope": "resource"
