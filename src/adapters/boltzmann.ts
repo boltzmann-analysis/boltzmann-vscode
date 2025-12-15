@@ -37,7 +37,26 @@ function getLanguageFromFilePath(filePath: string): string {
 		'.jsx': 'JavaScript',
 		'.ts': 'TypeScript',
 		'.tsx': 'TypeScript',
-		'.rs': 'Rust'
+		'.rs': 'Rust',
+		'.cs': 'CSharp',
+		'.go': 'Go',
+		'.py': 'Python',
+		'.c': 'C',
+		'.h': 'C_H',
+		'.cpp': 'CPlusPlus',
+		'.cc': 'CPlusPlus',
+		'.cxx': 'CPlusPlus',
+		'.hpp': 'CPlusPlus_Hpp',
+		'.hh': 'CPlusPlus_Hpp',
+		'.hxx': 'CPlusPlus_Hpp',
+		'.asm': 'Assembly',
+		'.s': 'Assembly',
+		'.sh': 'Bash',
+		'.bash': 'Bash',
+		'.java': 'Java',
+		'.html': 'Html',
+		'.htm': 'Html',
+		'.nix': 'Nix'
 	};
 	return languageMap[ext] || 'Unknown';
 }
